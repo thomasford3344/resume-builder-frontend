@@ -28,7 +28,7 @@ const Profile: React.FC = () => {
     confirmPassword: "",
   });
   const [error, setError] = React.useState<string | null>(null);
-  const templateOptions = [...Array(4)].map((option, index) => ({
+  const templateOptions = [...Array(5)].map((option, index) => ({
     value: `template${index + 1}`,
     label: `Template ${index + 1}`,
   }))
