@@ -11,6 +11,7 @@ import AuthProvider from "./components/common/AuthContext";
 import AdminLayout from "./components/common/AdminLayout";
 import NonPrivateLayout from "./components/common/NonPrivateLayout";
 import Login from "./pages/login";
+import Register from "./pages/register";
 // import Markets from "./pages/markets";
 import RaceProvider from "./components/common/RaceContext";
 // import MarketDetail from "./pages/markets/MarketDetail";
@@ -68,7 +69,8 @@ const router = createBrowserRouter([
     path: "/", // can stay the same, but use nested path for login
     element: <NonPrivateLayout />,
     children: [
-      { path: "login", element: <Login /> }, // '/login'
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
     ],
   },
 

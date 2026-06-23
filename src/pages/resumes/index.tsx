@@ -19,14 +19,17 @@ import {
   Stack,
   TextField,
   Grid,
-  Collapse,
   Chip,
-  CircularProgress
+  CircularProgress,
+  Avatar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import {
   Delete as DeleteIcon,
   Add as AddIcon,
-  FilterList as FilterListIcon,
   Clear as ClearIcon,
   Download as DownloadIcon,
   Code as CodeIcon,
@@ -34,9 +37,10 @@ import {
   QuestionAnswer as QuestionAnswerIcon,
   Visibility as VisibilityIcon,
   ContentCopy as ContentCopyIcon,
-  EmojiPeopleOutlined as ProfileIcon
+  Person as PersonIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import {
   getResumes,
   deleteResume,
@@ -51,6 +55,7 @@ import moment from "moment";
 import CoverLetterDialog from "../../components/resumes/CoverLetterDialog";
 import QuestionsDialog from "../../components/resumes/QuestionsDialog";
 import { useAuth } from "../../components/common/AuthContext";
+import { getProfile } from "../../services/userService";
 import { socket } from "./socket";
 import {
   getModelLabel,
@@ -70,7 +75,6 @@ const Resumes: React.FC = () => {
   );
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
-  const [filtersOpen, setFiltersOpen] = React.useState(true);
   const [filters, setFilters] = React.useState<FilterResumeParams>({
     companyName: "",
     roleType: "",
@@ -88,11 +92,53 @@ const Resumes: React.FC = () => {
   const [selectedJobDescription, setSelectedJobDescription] =
     React.useState<string>("");
   const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
+  const [userEmail, setUserEmail] = React.useState("");
+  const [userName, setUserName] = React.useState("");
+  const [avatarMenuAnchor, setAvatarMenuAnchor] =
+    React.useState<null | HTMLElement>(null);
 
   const [connected, setConnected] = React.useState(socket.connected);
   const [error, setError] = React.useState("");
 
+  const navigate = useNavigate();
   const { logout } = useAuth();
+
+  const avatarInitial = userEmail
+    ? userEmail.charAt(0).toUpperCase()
+    : "?";
+
+  const displayName = userName.trim()
+    ? userName.trim()
+    : userEmail.split("@")[0] || "";
+
+  const handleAvatarMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAvatarMenuAnchor(event.currentTarget);
+  };
+
+  const handleAvatarMenuClose = () => {
+    setAvatarMenuAnchor(null);
+  };
+
+  const handleProfileClick = () => {
+    handleAvatarMenuClose();
+    navigate("/profile");
+  };
+
+  const handleLogoutClick = () => {
+    handleAvatarMenuClose();
+    setLogoutDialogOpen(true);
+  };
+
+  React.useEffect(() => {
+    getProfile()
+      .then((profile) => {
+        setUserEmail(profile.email);
+        setUserName(profile.name || "");
+      })
+      .catch(() => {
+        // Avatar falls back to "?" if profile cannot be loaded
+      });
+  }, []);
 
   const loadResumes = React.useCallback(
     async (filterParams?: FilterResumeParams) => {
@@ -374,14 +420,6 @@ const Resumes: React.FC = () => {
       >
         <Typography variant="h4">Resumes</Typography>
         <Stack direction="row" spacing={2} alignItems="center">
-          <Button
-            variant="outlined"
-            startIcon={<FilterListIcon />}
-            onClick={() => setFiltersOpen(!filtersOpen)}
-            color="secondary"
-          >
-            Filters
-          </Button>
           {resumes.length > 0 && selectedResumes.size > 0 && (
             <Button
               variant="outlined"
@@ -408,27 +446,61 @@ const Resumes: React.FC = () => {
           >
             Generate from JSON
           </Button>
-          <Button
-            variant="contained"
-            component={Link}
-            to="/profile"
-            startIcon={<ProfileIcon />}
+          <Box
+            onClick={handleAvatarMenuOpen}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              cursor: "pointer",
+              borderRadius: 1,
+              px: 0.5,
+              py: 0.25,
+              "&:hover": { bgcolor: "action.hover" },
+            }}
           >
-            My Profile
-          </Button>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={() => setLogoutDialogOpen(true)}
+            <Avatar
+              sx={{
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+                width: 40,
+                height: 40,
+                fontWeight: 600,
+              }}
+            >
+              {avatarInitial}
+            </Avatar>
+            {displayName && (
+              <Typography variant="body1" fontWeight={500} color="text.primary">
+                {displayName}
+              </Typography>
+            )}
+          </Box>
+          <Menu
+            anchorEl={avatarMenuAnchor}
+            open={Boolean(avatarMenuAnchor)}
+            onClose={handleAvatarMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
           >
-            Logout
-          </Button>
+            <MenuItem onClick={handleProfileClick}>
+              <ListItemIcon>
+                <PersonIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Profile</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={handleLogoutClick}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Log out</ListItemText>
+            </MenuItem>
+          </Menu>
         </Stack>
       </Stack>
 
       {/* Filters Section */}
-      <Collapse in={filtersOpen}>
-        <Paper sx={{ p: 2, mb: 2 }}>
+      <Paper sx={{ p: 2, mb: 2 }}>
           <Typography variant="h6" gutterBottom>
             Filter Resumes
           </Typography>
@@ -492,7 +564,6 @@ const Resumes: React.FC = () => {
             </Button>
           </Stack>
         </Paper>
-      </Collapse>
 
       {loading ? (
         <Typography>Loading...</Typography>
