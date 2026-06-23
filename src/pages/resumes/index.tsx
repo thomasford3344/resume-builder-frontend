@@ -52,6 +52,11 @@ import CoverLetterDialog from "../../components/resumes/CoverLetterDialog";
 import QuestionsDialog from "../../components/resumes/QuestionsDialog";
 import { useAuth } from "../../components/common/AuthContext";
 import { socket } from "./socket";
+import {
+  getModelLabel,
+  getProviderLabel,
+  type AiProvider,
+} from "../../constants/aiModels";
 
 const Resumes: React.FC = () => {
   const [resumes, setResumes] = React.useState<ResumeResponse[]>([]);
@@ -535,6 +540,8 @@ const Resumes: React.FC = () => {
                 </TableCell>
                 <TableCell align="center">Company Name</TableCell>
                 <TableCell align="center">Role Type</TableCell>
+                {/* <TableCell align="center">AI Model</TableCell> */}
+                <TableCell align="center">AI Version</TableCell>
                 <TableCell align="center">Job Description</TableCell>
                 <TableCell align="center">Status</TableCell>
                 <TableCell align="center">Created Date</TableCell>
@@ -560,6 +567,19 @@ const Resumes: React.FC = () => {
                   </TableCell>
                   <TableCell align="center">{resume.companyName}</TableCell>
                   <TableCell align="center">{resume.roleType}</TableCell>
+                  {/* <TableCell align="center">
+                    {resume.aiModel
+                      ? getProviderLabel(resume.aiModel as AiProvider)
+                      : "-"}
+                  </TableCell> */}
+                  <TableCell align="center">
+                    {resume.aiModel && resume.aiVersion
+                      ? getModelLabel(
+                          resume.aiModel as AiProvider,
+                          resume.aiVersion,
+                        )
+                      : "gpt-4.1-mini"}
+                  </TableCell>
                   <TableCell align="center">
                     {resume.jobDescription ? (
                       <IconButton

@@ -12,6 +12,8 @@ export interface GenerateResumeDto {
   roleType: string;
   jobDescription: string;
   industry: string;
+  aiModel: "openai" | "claude";
+  aiVersion: string;
 }
 
 export interface ResumeResponse {
@@ -23,6 +25,8 @@ export interface ResumeResponse {
   jsonFilePath?: string;
   conversationId?: string;
   status?: 'in_progress' | 'completed' | 'failed';
+  aiModel?: 'openai' | 'claude';
+  aiVersion?: string;
   coverLetter?: string;
   answers?: Array<{ question: string; answer: string }>;
   createdAt?: string;
@@ -230,6 +234,8 @@ export interface FromJsonDto {
   roleType: string;
   jobDescription: string;
   jsonContent: string;
+  aiModel: "openai" | "claude";
+  aiVersion: string;
 }
 
 export const generatePdfFromJson = async (data: FromJsonDto) => {

@@ -6,7 +6,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import Select from "react-select";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -15,7 +14,13 @@ import {
   type GenerateResumeDto,
 } from "../../services/resumeService";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import AiModelSelector from "../../components/resumes/AiModelSelector";
+import {
+  type AiProvider,
+  DEFAULT_AI_PROVIDER,
+  DEFAULT_AI_VERSION,
+} from "../../constants/aiModels";
 
 const schema = yup
   .object({
@@ -25,62 +30,13 @@ const schema = yup
   })
   .required();
 
-const industryOptions = [
-  {
-    value: 'default',
-    label: 'Default',
-  },
-  {
-    value: 'healthcare',
-    label: 'Healthcare',
-  },
-  {
-    value: 'fintech',
-    label: 'Fintech',
-  },
-  {
-    value: 'cybersecurity',
-    label: 'Cybersecurity',
-  },
-  {
-    value: 'ai',
-    label: 'AI/Big Data',
-  },
-  {
-    value: 'food',
-    label: 'Food & Beverage',
-  },
-  {
-    value: 'ecommerce',
-    label: 'eCommerce',
-  },
-  {
-    value: 'insurance',
-    label: 'Insurance',
-  },
-  {
-    value: 'realestate',
-    label: 'Real Estate',
-  },
-  {
-    value: 'marketing',
-    label: 'Marketing',
-  },
-  {
-    value: 'telecom',
-    label: 'Telecommunication',
-  },
-  {
-    value: 'gaming',
-    label: 'Gaming',
-  },
-];
-
 type FormData = yup.InferType<typeof schema>;
 
 const CreateResume: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [aiModel, setAiModel] = React.useState<AiProvider>(DEFAULT_AI_PROVIDER);
+  const [aiVersion, setAiVersion] = React.useState(DEFAULT_AI_VERSION);
 
   const [formData, setFormData] = React.useState({
     industry: "default"
@@ -99,12 +55,10 @@ const CreateResume: React.FC = () => {
     },
   });
 
-  const handleIndustryChange = (option: string) => {
-    setFormData(prev => ({
-      ...prev,
-      "industry": option === "" ? "default" : option
-    }));
-  }
+  const handleAiModelChange = (model: AiProvider, version: string) => {
+    setAiModel(model);
+    setAiVersion(version);
+  };
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -114,22 +68,23 @@ const CreateResume: React.FC = () => {
         companyName: data.companyName,
         roleType: data.roleType,
         jobDescription: data.jobDescription,
-        industry: formData.industry
+        industry: formData.industry,
+        aiModel,
+        aiVersion,
       };
 
-      // Use the streaming service function
       const response = await generateResumeStream(payload);
 
-      // If resume generation started, redirect to resumes page
       if (response.resumeId) {
         toast.success("Resume generation started! Redirecting to resumes page...");
         navigate("/resumes");
         return;
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
+        err.response?.data?.message ||
+        err.message ||
         "Failed to generate resume";
       toast.error(errorMessage);
     } finally {
@@ -139,12 +94,27 @@ const CreateResume: React.FC = () => {
 
   return (
     <Paper sx={{ p: 3, maxWidth: 1000, mx: "auto" }}>
-      <Typography variant="h4" gutterBottom>
-        Generate Resume
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 2 }}
+      >
+        <Typography variant="h4">Generate Resume</Typography>
+        <Button variant="outlined" component={Link} to="/resumes">
+          Back to Resumes
+        </Button>
+      </Stack>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
+          <AiModelSelector
+            aiModel={aiModel}
+            aiVersion={aiVersion}
+            onChange={handleAiModelChange}
+            disabled={isSubmitting}
+          />
+
           <TextField
             {...register("companyName")}
             label="Company Name"
@@ -195,4 +165,3 @@ const CreateResume: React.FC = () => {
 };
 
 export default CreateResume;
-
