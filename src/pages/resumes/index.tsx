@@ -63,6 +63,13 @@ import {
   type AiProvider,
 } from "../../constants/aiModels";
 
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const Resumes: React.FC = () => {
   const [resumes, setResumes] = React.useState<ResumeResponse[]>([]);
   const [loading, setLoading] = React.useState(false);
@@ -75,11 +82,14 @@ const Resumes: React.FC = () => {
   );
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
-  const [filters, setFilters] = React.useState<FilterResumeParams>({
-    companyName: "",
-    roleType: "",
-    startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0],
+  const [filters, setFilters] = React.useState<FilterResumeParams>(() => {
+    const today = getLocalDateString();
+    return {
+      companyName: "",
+      roleType: "",
+      startDate: today,
+      endDate: today,
+    };
   });
   const [coverLetterResumeId, setCoverLetterResumeId] = React.useState<
     string | null
@@ -218,11 +228,12 @@ const Resumes: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
+    const today = getLocalDateString();
     loadResumes({
       companyName: "",
       roleType: "",
-      startDate: new Date().toISOString().split("T")[0],
-      endDate: new Date().toISOString().split("T")[0],
+      startDate: today,
+      endDate: today,
     });
   }, [loadResumes]);
 

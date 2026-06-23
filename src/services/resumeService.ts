@@ -154,8 +154,18 @@ export const answerQuestions = async (data: AnswerQuestionsDto) => {
 export interface FilterResumeParams {
   companyName?: string;
   roleType?: string;
-  startDate?: string; // ISO date string
-  endDate?: string; // ISO date string
+  startDate?: string; // YYYY-MM-DD from date inputs
+  endDate?: string; // YYYY-MM-DD from date inputs
+}
+
+function toLocalStartOfDayIso(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day, 0, 0, 0, 0).toISOString();
+}
+
+function toLocalEndOfDayIso(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year, month - 1, day, 23, 59, 59, 999).toISOString();
 }
 
 export const getResumes = async (filters?: FilterResumeParams) => {
@@ -167,10 +177,10 @@ export const getResumes = async (filters?: FilterResumeParams) => {
     params.append("roleType", filters.roleType);
   }
   if (filters?.startDate) {
-    params.append("startDate", filters.startDate);
+    params.append("startDate", toLocalStartOfDayIso(filters.startDate));
   }
   if (filters?.endDate) {
-    params.append("endDate", filters.endDate);
+    params.append("endDate", toLocalEndOfDayIso(filters.endDate));
   }
 
   const queryString = params.toString();

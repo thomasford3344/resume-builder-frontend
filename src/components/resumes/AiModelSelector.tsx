@@ -1,14 +1,12 @@
 import * as React from "react";
 import {
-  Box,
-  Tab,
-  Tabs,
-  Typography,
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText,
+  Stack,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
 import {
   type AiProvider,
@@ -34,9 +32,11 @@ const AiModelSelector: React.FC<AiModelSelectorProps> = ({
   const models = aiModel === "openai" ? OPENAI_MODELS : CLAUDE_MODELS;
 
   const handleProviderChange = (
-    _event: React.SyntheticEvent,
-    newProvider: AiProvider,
+    _event: React.MouseEvent<HTMLElement>,
+    newProvider: AiProvider | null,
   ) => {
+    if (!newProvider) return;
+
     const defaultVersion =
       newProvider === "openai"
         ? DEFAULT_OPENAI_VERSION
@@ -45,37 +45,37 @@ const AiModelSelector: React.FC<AiModelSelectorProps> = ({
   };
 
   return (
-    <Box>
-      {/* <Typography variant="subtitle2" sx={{ mb: 1 }}>
-        AI Model
-      </Typography> */}
-      <Tabs
+    <Stack direction="row" spacing={2} alignItems="center" sx={{ mt: 1, pt: 1 }}>
+      <ToggleButtonGroup
         value={aiModel}
+        exclusive
         onChange={handleProviderChange}
-        slotProps={{ indicator: { style: { display: "none" } } }}
+        disabled={disabled}
+        size="small"
         sx={{
-          mb: 2,
-          borderBottom: 1,
-          borderColor: "divider",
-          minHeight: 42,
-          "& .MuiTab-root": {
+          flexShrink: 0,
+          width: "fit-content",
+          "& .MuiToggleButton-root": {
             textTransform: "none",
-            minHeight: 42,
-            px: 2.5,
-            mr: 0.5,
-            borderRadius: "6px 6px 0 0",
-            transition: "background-color 0.2s ease, color 0.2s ease",
+            px: 2,
           },
-          "& .MuiTab-root.Mui-selected": {
+          "& .MuiToggleButton-root.Mui-selected": {
             backgroundColor: "primary.main",
             color: "primary.contrastText",
+            "&:hover": {
+              backgroundColor: "primary.dark",
+            },
           },
         }}
       >
-        <Tab label="Open AI" value="openai" disabled={disabled} />
-        <Tab label="Claude" value="claude" disabled={disabled} />
-      </Tabs>
-      <FormControl fullWidth size="small" disabled={disabled}>
+        <ToggleButton value="openai">Open AI</ToggleButton>
+        <ToggleButton value="claude">Claude</ToggleButton>
+      </ToggleButtonGroup>
+      <FormControl
+        size="small"
+        disabled={disabled}
+        sx={{ width: 200, flexShrink: 0 }}
+      >
         <InputLabel id="ai-version-label">Model Version</InputLabel>
         <Select
           labelId="ai-version-label"
@@ -89,11 +89,8 @@ const AiModelSelector: React.FC<AiModelSelectorProps> = ({
             </MenuItem>
           ))}
         </Select>
-        {/* <FormHelperText>
-          Select the AI model used to tailor this resume
-        </FormHelperText> */}
       </FormControl>
-    </Box>
+    </Stack>
   );
 };
 

@@ -21,6 +21,7 @@ import {
   DEFAULT_AI_PROVIDER,
   DEFAULT_AI_VERSION,
 } from "../../constants/aiModels";
+import { resizableMultilineSx } from "../../constants/textFieldStyles";
 
 const schema = yup
   .object({
@@ -101,10 +102,16 @@ const CreateResume: React.FC = () => {
         sx={{ mb: 2 }}
       >
         <Typography variant="h4">Generate Resume</Typography>
-        <Button variant="outlined" component={Link} to="/resumes">
+        <Button variant="contained" component={Link} to="/resumes">
           Back to Resumes
         </Button>
       </Stack>
+
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Enter job details and paste the job description. A tailored resume will
+        be generated in the background using your profile prompt and selected AI
+        model.
+      </Typography>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
@@ -146,6 +153,7 @@ const CreateResume: React.FC = () => {
             required
             placeholder="Paste the job description here..."
             disabled={isSubmitting}
+            sx={resizableMultilineSx}
           />
 
           <Button

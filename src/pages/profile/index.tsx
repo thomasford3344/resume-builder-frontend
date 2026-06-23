@@ -17,6 +17,7 @@ import { Link } from "react-router";
 import { toast } from "react-toastify";
 
 import { getProfile, updateProfile, type UserResponse, type UpdateProfileDto } from "../../services/userService";
+import { resizableMultilineSx } from "../../constants/textFieldStyles";
 
 const Profile: React.FC = () => {
   const [user, setUser] = React.useState<UserResponse | null>(null);
@@ -163,7 +164,7 @@ const Profile: React.FC = () => {
         sx={{ mb: 2 }}
       >
         <Typography variant="h4">Profile Settings</Typography>
-        <Button variant="outlined" component={Link} to="/resumes">
+        <Button variant="contained" component={Link} to="/resumes">
           Back to Resumes
         </Button>
       </Stack>
@@ -187,6 +188,7 @@ const Profile: React.FC = () => {
             rows={4}
             variant="outlined"
             helperText="This prompt is used when generating resumes"
+            sx={resizableMultilineSx}
           />
 
           <FormControl fullWidth variant="outlined" size="small">
@@ -214,6 +216,7 @@ const Profile: React.FC = () => {
             rows={4}
             variant="outlined"
             helperText="This prompt is used when generating answers to questions"
+            sx={resizableMultilineSx}
           />
 
           <Divider sx={{ my: 2 }} />

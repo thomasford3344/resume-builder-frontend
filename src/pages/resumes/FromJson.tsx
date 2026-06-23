@@ -19,6 +19,7 @@ import {
   DEFAULT_AI_PROVIDER,
   DEFAULT_AI_VERSION,
 } from "../../constants/aiModels";
+import { resizableMultilineSx } from "../../constants/textFieldStyles";
 
 const schema = yup
   .object({
@@ -137,7 +138,7 @@ const FromJson: React.FC = () => {
         sx={{ mb: 2 }}
       >
         <Typography variant="h4">Generate from JSON</Typography>
-        <Button variant="outlined" component={Link} to="/resumes">
+        <Button variant="contained" component={Link} to="/resumes">
           Back to Resumes
         </Button>
       </Stack>
@@ -188,6 +189,7 @@ const FromJson: React.FC = () => {
             placeholder="Paste the job description here..."
             disabled={isSubmitting}
             size="small"
+            sx={resizableMultilineSx}
           />
 
           <TextField
@@ -204,6 +206,7 @@ const FromJson: React.FC = () => {
             placeholder='{"name": "...", "title": "...", ...}'
             disabled={isSubmitting}
             size="small"
+            sx={resizableMultilineSx}
           />
 
           <Button
