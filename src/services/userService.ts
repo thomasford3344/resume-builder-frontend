@@ -71,7 +71,21 @@ export interface UpdateProfileDto {
   newPassword?: string;
 }
 
+export interface RegisterDto {
+  email: string;
+  name: string;
+  password: string;
+}
+
 const api = ApiClient.getInstance();
+
+export const register = async (data: RegisterDto) => {
+  const res = await api.post<{ user: UserResponse; access_token: string }>(
+    "/api/auth/register",
+    data,
+  );
+  return res.data;
+};
 
 export default {
   login: async (email: string, password: string) => {

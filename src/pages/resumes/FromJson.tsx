@@ -13,6 +13,12 @@ import * as yup from "yup";
 import { toast } from "react-toastify";
 import { generatePdfFromJson } from "../../services/resumeService";
 import { useNavigate } from "react-router";
+import AiModelSelector from "../../components/resumes/AiModelSelector";
+import {
+  type AiProvider,
+  DEFAULT_AI_PROVIDER,
+  DEFAULT_AI_VERSION,
+} from "../../constants/aiModels";
 
 const schema = yup
   .object({
@@ -39,6 +45,8 @@ type FormData = yup.InferType<typeof schema>;
 const FromJson: React.FC = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [aiModel, setAiModel] = React.useState<AiProvider>(DEFAULT_AI_PROVIDER);
+  const [aiVersion, setAiVersion] = React.useState(DEFAULT_AI_VERSION);
 
   const {
     register,
@@ -54,6 +62,11 @@ const FromJson: React.FC = () => {
     },
   });
 
+  const handleAiModelChange = (model: AiProvider, version: string) => {
+    setAiModel(model);
+    setAiVersion(version);
+  };
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
@@ -62,6 +75,8 @@ const FromJson: React.FC = () => {
         roleType: data.roleType,
         jobDescription: data.jobDescription,
         jsonContent: data.jsonContent,
+        aiModel,
+        aiVersion,
       });
       const pdfBlob = response.data;
 
@@ -134,6 +149,13 @@ const FromJson: React.FC = () => {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
+          <AiModelSelector
+            aiModel={aiModel}
+            aiVersion={aiVersion}
+            onChange={handleAiModelChange}
+            disabled={isSubmitting}
+          />
+
           <TextField
             {...register("companyName")}
             label="Company Name"
@@ -167,6 +189,7 @@ const FromJson: React.FC = () => {
             disabled={isSubmitting}
             size="small"
           />
+
           <TextField
             {...register("jsonContent")}
             label="Resume JSON"

@@ -8,8 +8,12 @@ import {
   Stack,
   Alert,
   Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
-import Select from "react-select";
+import { Link } from "react-router";
 import { toast } from "react-toastify";
 
 import { getProfile, updateProfile, type UserResponse, type UpdateProfileDto } from "../../services/userService";
@@ -28,10 +32,10 @@ const Profile: React.FC = () => {
     confirmPassword: "",
   });
   const [error, setError] = React.useState<string | null>(null);
-  const templateOptions = [...Array(5)].map((option, index) => ({
+  const templateOptions = [...Array(5)].map((_, index) => ({
     value: `template${index + 1}`,
     label: `Template ${index + 1}`,
-  }))
+  }));
 
   React.useEffect(() => {
     loadProfile();
@@ -152,11 +156,19 @@ const Profile: React.FC = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        Profile Settings
-      </Typography>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 2 }}
+      >
+        <Typography variant="h4">Profile Settings</Typography>
+        <Button variant="outlined" component={Link} to="/resumes">
+          Back to Resumes
+        </Button>
+      </Stack>
 
-      <Paper sx={{ p: 3, mt: 2 }}>
+      <Paper sx={{ p: 3 }}>
         <Stack spacing={3}>
           <TextField
             label="Name"
@@ -177,14 +189,21 @@ const Profile: React.FC = () => {
             helperText="This prompt is used when generating resumes"
           />
 
-          <Select
-            label="Template"
-            options={templateOptions}
-            value={templateOptions.filter((option) => option.value === formData.template)}
-            onChange={(option) => handleTemplateChange(option?.value || "")}
-            fullWidth
-            variant="outlined"
-          />
+          <FormControl fullWidth variant="outlined" size="small">
+            <InputLabel id="template-select-label">Template</InputLabel>
+            <Select
+              labelId="template-select-label"
+              label="Template"
+              value={formData.template}
+              onChange={(e) => handleTemplateChange(e.target.value)}
+            >
+              {templateOptions.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
           <TextField
             label="Answers Prompt"
